@@ -32,6 +32,7 @@ async def upload_file(
     - extract code in a function
     - generate random file name
     - store a DB record for the file
+    - create remaining roots (list files, retreife file retreive file content)
     """
     
     content = await file.read()
