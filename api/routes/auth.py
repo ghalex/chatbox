@@ -8,7 +8,6 @@ from utils.auth import create_token, hash_password, verify_password
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
-
 @router.post("/signup", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
 def signup(body: SignupRequest, db: Session = Depends(get_db)):
     if db.query(UserRecord).filter(UserRecord.email == body.email).first():
