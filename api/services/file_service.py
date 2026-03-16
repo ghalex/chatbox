@@ -4,7 +4,8 @@ from uuid import uuid4
 from fastapi import UploadFile
 from sqlalchemy.orm import Session
 
-from db.models import FileRecord
+from db.models import FileContentRecord, FileRecord
+from sqlalchemy import func
 
 
 class FileService:
@@ -16,7 +17,7 @@ class FileService:
         return self.base_dir / str(user_id)
 
     async def store(self, file: UploadFile, user_id: int) -> dict:
-        """Store an uploaded file on disk under files/{user_id}/ and return metadata."""
+        """Store an uploaded file on disk under files/{user_id}/ and return metadata (including raw bytes)."""
 
         original_name = Path(file.filename or "").name
         ext = Path(original_name).suffix
@@ -36,6 +37,7 @@ class FileService:
             "content_type": file.content_type or "application/octet-stream",
             "size": len(content),
             "path": str(dest),
+            "raw_bytes": content,
         }
 
     async def store_and_record(
@@ -46,8 +48,11 @@ class FileService:
         db: Session,
     ) -> FileRecord:
         """Store file on disk and create a FileRecord in the database."""
+
+        # 1. Store file on disk
         stored = await self.store(file=file, user_id=user_id)
 
+        # 2. Store file metadata in DB
         record = FileRecord(
             original_name=stored["filename"],
             random_name=stored["stored_filename"],
@@ -57,6 +62,24 @@ class FileService:
             user_id=user_id,
         )
         db.add(record)
+        db.commit()
+        db.refresh(record)
+      
+        # 3. Store file content as tsvector in DB
+        
+        raw_bytes = stored.get("raw_bytes", b"")
+        try:
+            text_content = raw_bytes.decode("utf-8", errors="ignore")
+        except Exception:
+            text_content = ""
+
+        if text_content:
+            content_record = FileContentRecord(
+                file_id=record.id,
+                content_tsv=func.to_tsvector("english", text_content),
+            )
+            db.add(content_record)
+
         db.commit()
         db.refresh(record)
 
