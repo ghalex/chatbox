@@ -2,7 +2,7 @@ from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, func, Inde
 from sqlalchemy.dialects.postgresql import TSVECTOR
 from sqlalchemy.orm import relationship
 
-from db.database import Base
+from chatbox.db.database import Base
 
 
 class UserRecord(Base):

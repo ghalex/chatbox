@@ -1,7 +1,7 @@
 from contextlib import asynccontextmanager
 from sqlalchemy import text
 
-from db.database import Base, engine
+from chatbox.db.database import Base, engine
 
 
 @asynccontextmanager

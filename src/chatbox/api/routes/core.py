@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
-from db.models import UserRecord
-from utils.auth import get_current_user
+from chatbox.db.models import UserRecord
+from chatbox.utils.auth import get_current_user
 
 router = APIRouter(tags=["core"])
 

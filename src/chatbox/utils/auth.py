@@ -6,9 +6,9 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jose import JWTError, jwt
 from sqlalchemy.orm import Session
-from config.settings import settings
-from db.database import get_db
-from db.models import UserRecord
+from chatbox.config.settings import settings
+from chatbox.db.database import get_db
+from chatbox.db.models import UserRecord
 
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  # 24 hours

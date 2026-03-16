@@ -2,7 +2,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-from config.settings import settings
+from chatbox.config.settings import settings
 
 
 def create_sql_light_engine(path: str | None = None):

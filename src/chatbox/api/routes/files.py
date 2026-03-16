@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
 from sqlalchemy.orm import Session
 
-from api.services.file_service import FileService, get_file_service
-from db.database import get_db
-from db.models import UserRecord
-from utils.auth import get_current_user
+from chatbox.api.services.file_service import FileService, get_file_service
+from chatbox.db.database import get_db
+from chatbox.db.models import UserRecord
+from chatbox.utils.auth import get_current_user
 
 router = APIRouter(prefix="/files", tags=["files"])
 
