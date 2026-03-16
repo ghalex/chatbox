@@ -1,11 +1,10 @@
-from pathlib import Path
-
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
+from sqlalchemy.orm import Session
 
+from api.services.file_service import FileService, get_file_service
+from db.database import get_db
 from db.models import UserRecord
 from utils.auth import get_current_user
-
-UPLOAD_DIR = Path("files")
 
 router = APIRouter(prefix="/files", tags=["files"])
 
@@ -14,33 +13,29 @@ router = APIRouter(prefix="/files", tags=["files"])
 async def upload_file(
     file: UploadFile = File(...),
     current_user: UserRecord = Depends(get_current_user),
+    file_service: FileService = Depends(get_file_service),
+    db: Session = Depends(get_db),
 ):
-    """Upload a file. Stored under files/{user_id}/. Returns metadata."""
+    """Upload a file. Stored under files/{user_id}/ and record metadata in DB."""
     if not file.filename:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Filename is required",
         )
-    # Sanitize: use only the base name to prevent path traversal
-    safe_name = Path(file.filename).name
-    user_dir = UPLOAD_DIR / str(current_user.id)
-    user_dir.mkdir(parents=True, exist_ok=True)
-    dest = user_dir / safe_name
 
-    #TODO:
-    """
-    - extract code in a function
-    - generate random file name
-    - store a DB record for the file
-    - create remaining roots (list files, retreife file retreive file content)
-    """
-    
-    content = await file.read()
-    dest.write_bytes(content)
+    record = await file_service.store_and_record(
+        file=file,
+        user_id=current_user.id,
+        db=db,
+    )
 
     return {
-        "filename": safe_name,
-        "content_type": file.content_type or "application/octet-stream",
-        "size": len(content),
-        "path": str(dest),
+        "id": record.id,
+        "original_name": record.original_name,
+        "random_name": record.random_name,
+        "content_type": record.content_type,
+        "size": record.size,
+        "user_id": record.user_id,
+        "created_at": record.created_at,
+        "path": record.path,
     }
