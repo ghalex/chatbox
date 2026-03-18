@@ -16,6 +16,12 @@ class Settings(BaseSettings):
     # postgresql+psycopg2://user:password@localhost:5432/chatbox
     pg_database_url: str | None = None
 
+    # Groq API key
+    groq_api_key: str | None = Field(
+        default=None,
+        validation_alias=AliasChoices("GROQ_API_KEY"),
+    )
+
     # Voyage API key (supports both VOYAGE_API_KEY and legacy VOYAGER_API_KEY)
     voyage_api_key: str | None = Field(
         default=None,
