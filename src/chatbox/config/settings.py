@@ -1,5 +1,6 @@
 from functools import lru_cache
 
+from pydantic import AliasChoices, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
@@ -14,6 +15,12 @@ class Settings(BaseSettings):
     # Full PostgreSQL connection string, e.g.:
     # postgresql+psycopg2://user:password@localhost:5432/chatbox
     pg_database_url: str | None = None
+
+    # Voyage API key (supports both VOYAGE_API_KEY and legacy VOYAGER_API_KEY)
+    voyage_api_key: str | None = Field(
+        default=None,
+        validation_alias=AliasChoices("VOYAGE_API_KEY", "VOYAGER_API_KEY"),
+    )
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
